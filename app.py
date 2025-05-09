@@ -28,6 +28,9 @@ def timetable():
 def todo():
     goals = Goal.query.all()
     return render_template('/todolist.html')
+@app.route('/tick.png')
+def tick():
+    return send_file('static/tick.png')
     
 
 @app.route('/ttscript.js')
@@ -51,21 +54,21 @@ def add():
     new_goal = Goal(description=description, collaborator=collaborator, status=status)
     db.session.add(new_goal)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('goals'))
 
 @app.route('/toggle/<int:goal_id>')
 def toggle(goal_id):
     goal = Goal.query.get_or_404(goal_id)
     goal.done = not goal.done
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('goals'))
 
 @app.route('/delete/<int:goal_id>')
 def delete(goal_id):
     goal = Goal.query.get_or_404(goal_id)
     db.session.delete(goal)
     db.session.commit()
-    return redirect(url_for('index'))
+    return redirect(url_for('goals'))
 
 if __name__ == '__main__':
     with app.app_context():

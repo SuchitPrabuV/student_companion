@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for,send_file
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -16,12 +16,32 @@ class Goal(db.Model):
 @app.route('/goals.html')
 def goals():
     goals = Goal.query.all()
-    return render_template('goals.html', goals=goals)
+    return render_template('/groupgoals.html', goals=goals)
+
+@app.route('/timetable.html')
+def timetable():
+    goals = Goal.query.all()
+    return render_template('/timetable.html')
+
+@app.route('/todo.html')
+def todo():
+    goals = Goal.query.all()
+    return render_template('/todolist.html')
+
+@app.route('/ttscript.js')
+def ttscript():
+    return send_file('static/ttscript.js')
+
+@app.route('/ttstyles.css')
+def ttstyles():
+    return send_file('static/ttstyles.css')
+
+
+
 
 @app.route('/')
 def index():
-    goals = Goal.query.all()
-    return render_template('student_companion.html', goals=goals)
+    return render_template('student_companion.html')
 
 @app.route('/add', methods=['POST'])
 def add():

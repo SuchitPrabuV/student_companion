@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Student Companion | To-Do List</title>
+  <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAFo9M/3AAAAAXNSR0IArs4c6QAAAhVJREFUOE5tlE0KgzAQhV82DwHvBNkBCG8QhTeBQsJdQJuBXIJdgLYCcAbMAmwFLAWKFhASQhUjTj3JkYy+497vO99zDoFAJ72IUS4l3I1QCuwfJs9wSvxkYxKkRBLMR5X9jlbK0W0A9T87fhcVfB9BGS+g9wC+APuyt3HQyZ+9GtQHQm0r8v9YJjlJdQJQy9tOQPeAdyjvYmHyUsEwAfgnwJDVCPAFW5C2MvjDoANSwAWgJ6wP84CR17Ac4TADgl0JzAOWrAN4aANq/Cvj6+AP/85mKxF7x+7AAAAAElFTkSuQmCC" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #f9f7fa 0%, #d0e8f2 100%);
+      color: #333;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      width: 100%;
+      margin: 2rem auto 1rem auto;
+      background: #fff7f0;
+      border-radius: 18px;
+      box-shadow: 0 4px 24px rgba(180, 180, 255, 0.17);
+      padding: 2.5rem 2rem 2rem 2rem;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: row;
+      gap: 2rem;
+      align-items: flex-start;
+      justify-content: space-between;
+      animation: fadeIn 0.8s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .main-section {
+      flex: 2 1 400px;
+      min-width: 320px;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .side-section {
+      flex: 1 1 220px;
+      min-width: 220px;
+      max-width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      align-items: stretch;
+    }
+    h2 {
+      color: #8ecae6;
+      margin-bottom: 0.25rem;
+      font-size: 2.3rem;
+      text-align: center;
+    }
+    .subtitle {
+      font-style: italic;
+      color: #6b7a8f;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      max-width: 420px;
+      user-select: none;
+    }
+    .illustration {
+      width: 70px;
+      margin-bottom: 1.2rem;
+      fill: #8ecae6;
+      opacity: 0.7;
+      animation: float 4s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .reminder-bar {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 1rem 1.2rem;
+      background: #ffe066;
+      color: #22223b;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(255, 224, 102, 0.2);
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.1rem;
+      display: none;
+      animation: fadeInReminder 0.6s;
+      z-index: 2;
+    }
+    @keyframes fadeInReminder {
+      from { opacity: 0; transform: translateY(-10px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .todo-form {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .todo-input {
+      flex-grow: 1;
+      padding: 0.6rem 1rem;
+      border-radius: 18px 0 0 18px;
+      border: 1px solid #bde0fe;
+      background: #f1f1f1;
+      font-size: 1.1rem;
+      outline-offset: 2px;
+      outline-color: #8ecae6;
+      transition: border-color 0.3s, background-color 0.3s;
+      min-width: 0;
+    }
+    .todo-input:focus {
+      border-color: #219ebc;
+      background: #e0f7fa;
+    }
+    .todo-deadline {
+      border: 1px solid #bde0fe;
+      border-radius: 0;
+      padding: 0.6rem 0.5rem;
+      background: #f1f1f1;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s, background-color 0.3s;
+    }
+    .todo-deadline:focus {
+      border-color: #219ebc;
+      background: #e0f7fa;
+    }
+    .todo-btn {
+      background: #ffd6e0;
+      color: #22223b;
+      border: none;
+      border-radius: 0 18px 18px 0;
+      padding: 0.7rem 1.8rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+      box-shadow: 0 2px 6px rgba(255, 214, 224, 0.6);
+      user-select: none;
+    }
+    .todo-btn:hover {
+      background: #bde0fe;
+      box-shadow: 0 4px 12px rgba(189, 224, 254, 0.8);
+      animation: bounce 0.4s;
+      transform-origin: center bottom;
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .progress-bar-bg {
+      background: #e0fbfc;
+      border-radius: 12px;
+      height: 20px;
+      width: 100%;
+      margin-bottom: 0.7rem;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(180, 180, 255, 0.08);
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #8ecae6, #bde0fe);
+      height: 100%;
+      border-radius: 12px 0 0 12px;
+      width: 0%;
+      transition: width 0.7s cubic-bezier(.4,2,.6,1);
+    }
+    .progress-label {
+      font-size: 1em;
+      color: #6b7a8f;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+    .todo-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      max-height: 320px;
+      overflow-y: auto;
+      border-top: 1px solid #bde0fe;
+      border-radius: 0 0 18px 18px;
+      box-shadow: inset 0 2px 6px rgba(189, 224, 254, 0.3);
+    }
+    .todo-item {
+      background: #e0fbfc;
+      border-bottom: 1px solid #bde0fe;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s, color 0.3s;
+      font-size: 1.1rem;
+      user-select: none;
+      opacity: 1;
+    }
+    .todo-item.fade-in {
+      animation: fadeInItem 0.5s;
+    }
+    @keyframes fadeInItem {
+      from { opacity: 0; transform: translateY(20px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .todo-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 18px 18px;
+    }
+    .todo-item.completed {
+      background: #caffbf;
+      text-decoration: line-through;
+      color: #7a7a7a;
+      font-style: italic;
+      transition: background 0.5s, color 0.5s;
+    }
+    .todo-item span {
+      flex-grow: 1;
+      cursor: pointer;
+      padding-right: 1rem;
+      word-break: break-word;
+      transition: color 0.3s;
+    }
+    .todo-deadline-label {
+      color: #888;
+      font-size: 0.92em;
+      margin-left: 0.5em;
+      margin-right: 0.5em;
+      font-style: italic;
+    }
+    .todo-actions button {
+      background: #ffd6e0;
+      border: none;
+      border-radius: 50%;
+      width: 2.3rem;
+      height: 2.3rem;
+      margin-left: 0.5rem;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 1px 4px rgba(255, 214, 224, 0.7);
+      user-select: none;
+    }
+    .todo-actions button:hover {
+      background: #bde0fe;
+      box-shadow: 0 3px 8px rgba(189, 224, 254, 0.9);
+      transform: scale(1.15);
+    }
+    .todo-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .todo-list::-webkit-scrollbar-thumb {
+      background: #8ecae6;
+      border-radius: 4px;
+    }
+    .todo-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .notes-section {
+      background: #e0fbfc;
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 2px 8px rgba(180, 180, 255, 0.07);
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      min-height: 100px;
+    }
+    .notes-section textarea {
+      width: 100%;
+      min-height: 60px;
+      border-radius: 8px;
+      border: 1px solid #bde0fe;
+      background: #f9f7fa;
+      padding: 0.5rem;
+      font-size: 1em;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    .notes-section textarea:focus {
+      border-color: #8ecae6;
+      background: #e0f7fa;
+    }
+    .notes-section label {
+      color: #6b7a8f;
+      font-weight: bold;
+      font-size: 1em;
+      margin-bottom: 0.2em;
+    }
+    .quote-section {
+      background: #ffd6e0;
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.2rem;
+      box-shadow: 0 2px 8px rgba(255, 214, 224, 0.12);
+      color: #22223b;
+      font-style: italic;
+      font-size: 1.08em;
+      text-align: center;
+      min-height: 60px;
+    }
+    .date-section {
+      background: #bde0fe;
+      color: #22223b;
+      border-radius: 10px;
+      padding: 0.5em 1em;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 1.2rem;
+      font-size: 1.1em;
+      box-shadow: 0 1px 4px rgba(189, 224, 254, 0.14);
+    }
+    .pomodoro-section {
+      background: #caffbf;
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      box-shadow: 0 2px 8px rgba(202, 255, 191, 0.13);
+      color: #22223b;
+      margin-bottom: 1.2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.7em;
+    }
+    .pomodoro-timer {
+      font-size: 1.8em;
+      font-weight: bold;
+      margin-bottom: 0.5em;
+      letter-spacing: 1px;
+    }
+    .pomodoro-controls button {
+      background: #8ecae6;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0.4em 1em;
+      margin: 0 0.3em;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: bold;
+    }
+    .pomodoro-controls button:hover {
+      background: #219ebc;
+    }
+    .footer {
+      width: 100%;
+      text-align: center;
+      padding: 1.2rem 0 0.5rem 0;
+      font-size: 1em;
+      color: #6b7a8f;
+      letter-spacing: 0.5px;
+      background: transparent;
+      margin-top: 0.5rem;
+      user-select: none;
+    }
+    .footer a {
+      color: #8ecae6;
+      text-decoration: none;
+      margin: 0 0.5em;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 950px) {
+      .container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2.5rem;
+        padding: 2rem 0.7rem;
+      }
+      .main-section, .side-section {
+        max-width: 100%;
+      }
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 1rem 0.2rem;
+      }
+      .main-section, .side-section {
+        min-width: 0;
+      }
+      .todo-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+      }
+      .todo-input, .todo-deadline, .todo-btn {
+        border-radius: 12px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" role="main" aria-label="Student Companion">
+    <div class="main-section">
+      <svg class="illustration" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path d="M20 28l8 8 16-16" stroke="#219ebc" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="12" y="12" width="40" height="40" rx="6" ry="6" fill="none" stroke="#219ebc" stroke-width="4"/>
+      </svg>
+      <h2>My To-Do List</h2>
+      <div class="subtitle">Stay organized, stay motivated! Double-click task to edit. Set deadlines for reminders!</div>
+      <div class="reminder-bar" id="reminder-bar"></div>
+      <form class="todo-form" id="todo-form" autocomplete="off" aria-label="Add new task form">
+        <input
+          type="text"
+          id="todo-input"
+          class="todo-input"
+          placeholder="Add a new task..."
+          required
+          aria-required="true"
+          aria-describedby="inputHelp"
+          aria-label="Task description"
+        />
+        <input
+          type="datetime-local"
+          id="todo-deadline"
+          class="todo-deadline"
+          aria-label="Deadline (optional)"
+        />
+        <button type="submit" class="todo-btn" aria-label="Add task">Add</button>
+      </form>
+      <div class="progress-label" id="progress-label"></div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar-fill"></div>
+      </div>
+      <ul class="todo-list" id="todo-list" aria-live="polite" aria-relevant="additions removals"></ul>
+    </div>
+    <div class="side-section">
+      <div class="date-section" id="date-section"></div>
+      <div class="quote-section" id="quote-section"></div>
+      <div class="notes-section">
+        <label for="quick-notes">Quick Notes</label>
+        <textarea id="quick-notes" placeholder="Jot down ideas, reminders, or anything else..."></textarea>
+      </div>
+      <div class="pomodoro-section">
+        <div>Study Timer (Pomodoro)</div>
+        <div class="pomodoro-timer" id="pomodoro-timer">25:00</div>
+        <div class="pomodoro-controls">
+          <button onclick="startPomodoro()">Start</button>
+          <button onclick="pausePomodoro()">Pause</button>
+          <button onclick="resetPomodoro()">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer">
+    &copy; 2025 Student Companion &mdash; <a href="https://pomofocus.io/" target="_blank">Pomodoro Tool</a>
+    | <a href="https://www.goodreads.com/quotes/tag/motivation" target="_blank">More Quotes</a>
+    | <a href="https://www.notion.so/" target="_blank">Notion</a>
+  </div>
+  <script>
+    // ========== MOTIVATIONAL QUOTE ==========
+    const quotes = [
+      "Success is the sum of small efforts, repeated day in and day out. - Robert Collier",
+      "Don’t watch the clock; do what it does. Keep going. - Sam Levenson",
+      "The secret of getting ahead is getting started. - Mark Twain",
+      "Believe you can and you're halfway there. - Theodore Roosevelt",
+      "Great things are done by a series of small things brought together. - Vincent Van Gogh",
+      "You don’t have to be great to start, but you have to start to be great. - Zig Ziglar",
+      "The future depends on what you do today. - Mahatma Gandhi",
+      "It always seems impossible until it’s done. - Nelson Mandela",
+      "Dream big and dare to fail. - Norman Vaughan",
+      "Start where you are. Use what you have. Do what you can. - Arthur Ashe"
+    ];
+    document.getElementById('quote-section').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+ 
+    // ========== TODAY'S DATE ==========
+    function updateDateSection() {
+      const d = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      document.getElementById('date-section').textContent = d.toLocaleDateString(undefined, options);
+    }
+    updateDateSection();
+ 
+    // ========== QUICK NOTES ==========
+    const notesArea = document.getElementById('quick-notes');
+    notesArea.value = localStorage.getItem('studentCompanionNotes') || "";
+    notesArea.addEventListener('input', () => {
+      localStorage.setItem('studentCompanionNotes', notesArea.value);
+    });
+ 
+    // ========== POMODORO TIMER ==========
+    let pomodoroTime = 25 * 60; // 25 minutes in seconds
+    let pomodoroInterval = null;
+    let pomodoroPaused = true;
+    function updatePomodoroDisplay() {
+      const min = String(Math.floor(pomodoroTime / 60)).padStart(2, '0');
+      const sec = String(pomodoroTime % 60).padStart(2, '0');
+      document.getElementById('pomodoro-timer').textContent = `${min}:${sec}`;
+    }
+    function startPomodoro() {
+      if (!pomodoroPaused) return;
+      pomodoroPaused = false;
+      pomodoroInterval = setInterval(() => {
+        if (pomodoroTime > 0) {
+          pomodoroTime--;
+          updatePomodoroDisplay();
+        } else {
+          clearInterval(pomodoroInterval);
+          pomodoroPaused = true;
+          alert("Pomodoro session complete! Take a break.");
+        }
+      }, 1000);
+    }
+    function pausePomodoro() {
+      pomodoroPaused = true;
+      clearInterval(pomodoroInterval);
+    }
+    function resetPomodoro() {
+      pomodoroPaused = true;
+      clearInterval(pomodoroInterval);
+      pomodoroTime = 25 * 60;
+      updatePomodoroDisplay();
+    }
+    updatePomodoroDisplay();
+ 
+    // ========== TO-DO LIST LOGIC ==========
+    function getTodos() {
+      return JSON.parse(localStorage.getItem('todos') || '[]');
+    }
+    function saveTodos(todos) {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+ 
+    const todoList = document.getElementById('todo-list');
+    const todoForm = document.getElementById('todo-form');
+    const todoInput = document.getElementById('todo-input');
+    const todoDeadline = document.getElementById('todo-deadline');
+    const reminderBar = document.getElementById('reminder-bar');
+    const progressLabel = document.getElementById('progress-label');
+    const progressBarFill = document.getElementById('progress-bar-fill');
+ 
+    let todos = getTodos();
+ 
+    // --- REMINDER TIMER STATE ---
+    let reminderTimeout = null;
+    let lastReminderHTML = '';
+ 
+    function renderTodos(newIdx = null) {
+      todoList.innerHTML = '';
+      let completed = 0;
+      if (todos.length === 0) {
+        todoList.innerHTML = '<li style="text-align:center;color:#6b7a8f; font-style: italic;">No tasks yet. Add one above!</li>';
+      } else {
+        todos.forEach((todo, idx) => {
+          if (todo.completed) completed++;
+          const li = document.createElement('li');
+          li.className = 'todo-item' + (todo.completed ? ' completed' : '');
+          if (newIdx !== null && idx === newIdx) li.classList.add('fade-in');
+          const span = document.createElement('span');
+          span.textContent = todo.text;
+          span.setAttribute('ondblclick', `editTodo(${idx})`);
+          span.setAttribute('tabindex', '0');
+          span.setAttribute('role', 'textbox');
+          span.setAttribute('aria-label', `Task: ${todo.text}`);
+          span.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') editTodo(idx);
+          });
+          li.appendChild(span);
+ 
+          if (todo.deadline) {
+            const deadlineLabel = document.createElement('span');
+            deadlineLabel.className = 'todo-deadline-label';
+            const deadlineDate = new Date(todo.deadline);
+            deadlineLabel.textContent = '⏰ ' + deadlineDate.toLocaleString();
+            li.appendChild(deadlineLabel);
+          }
+ 
+          const actions = document.createElement('div');
+          actions.className = 'todo-actions';
+ 
+          const doneBtn = document.createElement('button');
+          doneBtn.title = "Mark as done or undone";
+          doneBtn.setAttribute('aria-label', 'Toggle done');
+          doneBtn.innerHTML = '&#10003;';
+          doneBtn.onclick = () => toggleDone(idx);
+ 
+          const editBtn = document.createElement('button');
+          editBtn.title = "Edit task";
+          editBtn.setAttribute('aria-label', 'Edit task');
+          editBtn.innerHTML = '&#9998;';
+          editBtn.onclick = () => editTodo(idx);
+ 
+          const delBtn = document.createElement('button');
+          delBtn.title = "Delete task";
+          delBtn.setAttribute('aria-label', 'Delete task');
+          delBtn.innerHTML = '&#10005;';
+          delBtn.onclick = () => deleteTodo(idx);
+ 
+          actions.appendChild(doneBtn);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          li.appendChild(actions);
+ 
+          todoList.appendChild(li);
+        });
+      }
+      // Progress bar and label
+      progressLabel.textContent = todos.length
+        ? `Progress: ${completed} of ${todos.length} tasks completed`
+        : '';
+      let percent = todos.length ? Math.round((completed / todos.length) * 100) : 0;
+      progressBarFill.style.width = percent + "%";
+    }
+ 
+    todoForm.onsubmit = function(e) {
+      e.preventDefault();
+      const text = todoInput.value.trim();
+      let deadline = todoDeadline.value;
+      if (!text) return;
+      if (!deadline) deadline = null;
+      todos.push({ text, completed: false, deadline, reminded: false });
+      saveTodos(todos);
+      todoInput.value = '';
+      todoDeadline.value = '';
+      renderTodos(todos.length - 1);
+      todoInput.focus();
+    };
+ 
+    function toggleDone(idx) {
+      todos[idx].completed = !todos[idx].completed;
+      saveTodos(todos);
+      renderTodos();
+    }
+ 
+    function editTodo(idx) {
+      const current = todos[idx];
+      const newText = prompt('Edit your task:', current.text);
+      if (newText === null) return;
+      let newDeadline = current.deadline || '';
+      if (window.confirm('Edit deadline as well?')) {
+        newDeadline = prompt('Enter new deadline (YYYY-MM-DDTHH:MM, blank for none):', current.deadline ? current.deadline.slice(0,16) : '');
+        if (newDeadline === null) return;
+        if (newDeadline.trim() === '') newDeadline = null;
+      }
+      if (newText.trim() !== '' && (newText !== current.text || newDeadline !== current.deadline)) {
+        todos[idx].text = newText.trim();
+        todos[idx].deadline = newDeadline;
+        todos[idx].reminded = false;
+        saveTodos(todos);
+        renderTodos();
+      }
+    }
+ 
+    function deleteTodo(idx) {
+      todos.splice(idx, 1);
+      saveTodos(todos);
+      renderTodos();
+    }
+ 
+    function showReminder(html) {
+      reminderBar.innerHTML = html;
+      reminderBar.style.display = 'block';
+      lastReminderHTML = html;
+      if (reminderTimeout) clearTimeout(reminderTimeout);
+      reminderTimeout = setTimeout(() => {
+        if (reminderBar.innerHTML === lastReminderHTML) {
+          reminderBar.innerHTML = '';
+          reminderBar.style.display = 'none';
+        }
+      }, 30000);
+    }
+ 
+    function checkReminders() {
+      const now = new Date();
+      let reminders = [];
+      let updated = false;
+      todos.forEach((todo, idx) => {
+        if (
+          todo.deadline &&
+          !todo.completed &&
+          !todo.reminded
+        ) {
+          const deadline = new Date(todo.deadline);
+          const diff = deadline - now;
+          if (diff <= 5 * 60 * 1000 && diff > 0) {
+            reminders.push(`Task "<b>${todo.text}</b>" is due soon at ${deadline.toLocaleString()}!`);
+            todos[idx].reminded = true;
+            updated = true;
+          } else if (diff <= 0 && diff > -60 * 1000) {
+            reminders.push(`Task "<b>${todo.text}</b>" deadline just passed!`);
+            todos[idx].reminded = true;
+            updated = true;
+          }
+        }
+      });
+      if (updated) saveTodos(todos);
+      if (reminders.length > 0) {
+        showReminder(reminders.join('<br>'));
+      }
+    }
+ 
+    window.toggleDone = toggleDone;
+    window.editTodo = editTodo;
+    window.deleteTodo = deleteTodo;
+ 
+    renderTodos();
+    checkReminders();
+    setInterval(checkReminders, 1000);
+ 
+  </script>
+</body>
+</html>

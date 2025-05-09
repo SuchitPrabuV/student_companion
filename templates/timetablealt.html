@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Timetable</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --text: #111;
+      --cell: white;
+      --border: #ddd;
+      --header: #f0f0f0;
+      --task-bg: #e0f2fe;
+    }
+    
+    body.dark {
+      --bg: #1e1e1e;
+      --text: #eee;
+      --cell: #2a2a2a;
+      --border: #444;
+      --header: #333;
+      --task-bg: #3b82f6;
+    }
+    
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1100px;
+      margin: auto;
+    }
+    
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .task-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    input, select, button {
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    #addTask, #toggleTheme {
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    #timetable {
+      display: grid;
+      grid-template-columns: 100px repeat(9, 1fr);
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    
+    .cell {
+      background: var(--cell);
+      border: 1px solid var(--border);
+      min-height: 80px;
+      padding: 6px;
+      position: relative;
+    }
+    
+    .cell.header {
+      background: var(--header);
+      font-weight: bold;
+      text-align: center;
+    }
+    
+    .task {
+      background: var(--task-bg);
+      padding: 4px 8px;
+      border-radius: 4px;
+      margin-top: 5px;
+      font-size: 13px;
+      position: relative;
+    }
+    
+    .task button {
+      position: absolute;
+      right: 5px;
+      top: 2px;
+      background: none;
+      border: none;
+      color: red;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <h1>📅 Timetable</h1>
+      <button id="toggleTheme">🌙 Toggle Dark Mode</button>
+    </div>
+
+    <div class="task-form">
+      <input type="text" id="taskName" placeholder="Task name">
+      <select id="taskDay">
+        <option disabled selected>Select day</option>
+        <option value="Mon">Monday</option>
+        <option value="Tue">Tuesday</option>
+        <option value="Wed">Wednesday</option>
+        <option value="Thu">Thursday</option>
+        <option value="Fri">Friday</option>
+      </select>
+      <select id="taskTime">
+        <option disabled selected>Select time</option>
+      </select>
+      <button id="addTask">➕ Add Task</button>
+    </div>
+
+    <div id="timetable"></div>
+  </div>
+
+  <script>
+  const timetable = document.getElementById('timetable');
+    const addBtn = document.getElementById('addTask');
+    const taskName = document.getElementById('taskName');
+    const taskDay = document.getElementById('taskDay');
+    const taskTime = document.getElementById('taskTime');
+    const toggleTheme = document.getElementById('toggleTheme');
+    
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+    const hours = Array.from({ length: 9 }, (_, i) => `${9 + i}:00`);
+    
+    function getCellId(day, hour) {
+      return `${day}-${hour}`;
+    }
+    
+    function createHeaderCell(text) {
+      const cell = document.createElement('div');
+      cell.className = 'cell header';
+      cell.textContent = text;
+      return cell;
+    }
+    
+    function createTaskCell(day, hour) {
+      const cellId = getCellId(day, hour);
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.id = cellId;
+    
+      const savedTasks = JSON.parse(localStorage.getItem(cellId)) || [];
+      savedTasks.forEach(task => appendTask(cell, task));
+      return cell;
+    }
+    
+    function appendTask(cell, text) {
+      const task = document.createElement('div');
+      task.className = 'task';
+      task.textContent = text;
+    
+      const btn = document.createElement('button');
+      btn.textContent = '✕';
+      btn.onclick = () => {
+        const cellId = cell.id;
+        let tasks = JSON.parse(localStorage.getItem(cellId)) || [];
+        tasks = tasks.filter(t => t !== text);
+        localStorage.setItem(cellId, JSON.stringify(tasks));
+        task.remove();
+      };
+    
+      task.appendChild(btn);
+      cell.appendChild(task);
+    }
+    
+    function buildTable() {
+      timetable.innerHTML = '';
+      
+      // Top-left empty cell
+      timetable.appendChild(createHeaderCell(''));
+    
+      // Time headers
+      hours.forEach(hour => {
+        timetable.appendChild(createHeaderCell(hour));
+      });
+    
+      // Each row for day
+      days.forEach(day => {
+        timetable.appendChild(createHeaderCell(day));
+        hours.forEach(hour => {
+          timetable.appendChild(createTaskCell(day, hour));
+        });
+      });
+    }
+    
+    function populateTimeDropdown() {
+      hours.forEach(hour => {
+        const opt = document.createElement('option');
+        opt.value = hour;
+        opt.textContent = hour;
+        taskTime.appendChild(opt);
+      });
+    }
+    
+    addBtn.addEventListener('click', () => {
+      const name = taskName.value.trim();
+      const time = taskTime.value;
+      const day = taskDay.value;
+    
+      if (!name || !time || !day) return alert('Please fill in all fields.');
+    
+      const cellId = getCellId(day, time);
+      const cell = document.getElementById(cellId);
+    
+      let tasks = JSON.parse(localStorage.getItem(cellId)) || [];
+      tasks.push(name);
+      localStorage.setItem(cellId, JSON.stringify(tasks));
+    
+      appendTask(cell, name);
+    
+      taskName.value = '';
+      taskDay.selectedIndex = 0;
+      taskTime.selectedIndex = 0;
+    });
+    
+    // Theme toggle
+    toggleTheme.addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+    
+    // Load saved theme
+    if (localStorage.getItem('theme') === 'dark') {
+      document.body.classList.add('dark');
+    }
+    
+    populateTimeDropdown();
+    buildTable();
+    </script>
+</body>
+</html>

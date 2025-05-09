@@ -31,7 +31,7 @@
     }
     
     .container {
-      max-width: 1100px;
+      max-width: 98%;
       margin: auto;
     }
     
@@ -54,6 +54,7 @@
     }
     
     #addTask, #toggleTheme {
+      box-shadow: #2563eb 0px 0px 12px;
       background: #2563eb;
       color: white;
       border: none;
@@ -62,8 +63,9 @@
     }
     
     #timetable {
+      box-shadow: #606060 0px 0px 10px;
       display: grid;
-      grid-template-columns: 100px repeat(9, 1fr);
+      grid-template-columns: 100px repeat(14, 1fr);
       background: var(--border);
       border: 1px solid var(--border);
     }
@@ -97,7 +99,7 @@
       top: 2px;
       background: none;
       border: none;
-      color: red;
+      color: red; 
       font-size: 12px;
       cursor: pointer;
     }
@@ -107,21 +109,23 @@
 <body>
   <div class="container">
     <div class="top-bar">
-      <h1>📅 Timetable</h1>
+      <h1 style="text-shadow: #2563eb 0px 0px 40px;">📅 Timetable</h1>
       <button id="toggleTheme">🌙 Toggle Dark Mode</button>
     </div>
 
     <div class="task-form">
-      <input type="text" id="taskName" placeholder="Task name">
-      <select id="taskDay">
+      <input type="text" id="taskName" placeholder="Task name" style="box-shadow: #a6a6a6 0px 0px 10px;border-width: 1px; border-style: ridge;">
+      <select id="taskDay" style="box-shadow: #a6a6a6 0px 0px 10px;">
         <option disabled selected>Select day</option>
+        <option value="Sun">Sunday</option>
         <option value="Mon">Monday</option>
         <option value="Tue">Tuesday</option>
         <option value="Wed">Wednesday</option>
         <option value="Thu">Thursday</option>
         <option value="Fri">Friday</option>
+        <option value="Sat">Saturday</option>
       </select>
-      <select id="taskTime">
+      <select id="taskTime" style="box-shadow: #a6a6a6 0px 0px 10px;">
         <option disabled selected>Select time</option>
       </select>
       <button id="addTask">➕ Add Task</button>
@@ -138,8 +142,8 @@
     const taskTime = document.getElementById('taskTime');
     const toggleTheme = document.getElementById('toggleTheme');
     
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
-    const hours = Array.from({ length: 9 }, (_, i) => `${9 + i}:00`);
+    const days = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const hours = Array.from({ length: 14 }, (_, i) => `${9 + i}:00`);
     
     function getCellId(day, hour) {
       return `${day}-${hour}`;

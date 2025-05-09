@@ -21,12 +21,14 @@ def goals():
 @app.route('/timetable.html')
 def timetable():
     goals = Goal.query.all()
-    return render_template('/timetable.html')
+    #return render_template('/timetable.html')
+    return render_template('/timetablealt.html')
 
 @app.route('/todo.html')
 def todo():
     goals = Goal.query.all()
     return render_template('/todolist.html')
+    
 
 @app.route('/ttscript.js')
 def ttscript():
@@ -35,8 +37,6 @@ def ttscript():
 @app.route('/ttstyles.css')
 def ttstyles():
     return send_file('static/ttstyles.css')
-
-
 
 
 @app.route('/')
